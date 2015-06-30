@@ -18,14 +18,24 @@
   <script>
 		// In renderer process (web page).
 		var fs = remote.require('fs');
+    var readChunk = remote.require('read-chunk');
+    var fileType = remote.require('file-type');
 		var audiofiles;
 
-		fs.readdir('/home/binayak/music', function(err, files){
+		fs.readdir('/home/binayak/Music', function(err, files){
         if (err == null){
-          console.log(files);
+          // console.log(files);
+          var nfiles = files.length;
+          for (var i = 0; i < nfiles; i++){
+            var chunk = readChunk.sync('/home/binayak/Music/' + files[i], 0, 262);
+            if(fileType(chunk).mime == 'audio/mpeg'){
+              console.log("" + files[i]);
+            }
+          }
         }
         else {
-          console.log("Could read folder" + err);
+          console.log("Could read folder");
+          console.log(err);
         }
     });
 </script>
