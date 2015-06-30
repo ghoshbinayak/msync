@@ -1,0 +1,30 @@
+{
+  "name": "msync",
+  "version": "0.0.1",
+  "author": {
+    "name": "Binayak Ghosh",
+    "email": "ghoshbinayak@gmail.com"
+  },
+  "description": "Sync your music with Google Drive.",
+  "engines": {
+    "node": ">=0.12"
+  },
+  "main": "./main",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ghoshbinayak/msync.git"
+  },
+  "keywords": [
+    "sync",
+    "drive",
+    "music",
+    "music sync"
+  ],
+  "dependencies": {
+    "googleapis": "~2.0.5"
+  },
+  "devDependencies": {
+    "electron-prebuilt": "^0.28.3",
+    "electron-rebuild": "^0.2.2"
+  }
+}
