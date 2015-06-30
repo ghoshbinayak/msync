@@ -20,8 +20,9 @@
 		var fs = remote.require('fs');
     var readChunk = remote.require('read-chunk');
     var fileType = remote.require('file-type');
-		var audiofiles;
+		var audiofiles = new Array();
 
+    // Get file list
 		fs.readdir('/home/binayak/Music', function(err, files){
         if (err == null){
           // console.log(files);
@@ -29,14 +30,47 @@
           for (var i = 0; i < nfiles; i++){
             var chunk = readChunk.sync('/home/binayak/Music/' + files[i], 0, 262);
             if(fileType(chunk).mime == 'audio/mpeg'){
-              console.log("" + files[i]);
+              audiofiles.push(files[i]);
+            }
+            else {
+              console.log("Could read folder");
+              console.log(err);
             }
           }
         }
-        else {
-          console.log("Could read folder");
-          console.log(err);
-        }
     });
+
+    // Play audio files
+    var musicForTheEars= null;
+    var context, track;
+    try{
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      context = new AudioContext();
+    }
+    catch(e){
+      console.log('Audio API is broken :\'(');
+    }
+    function loadMusicToPlay(path){
+      tarck = null;
+      try{
+        track = fs.readFileSync(path);
+      }
+      catch(e){
+        console.log('Could not read file: ' + path);
+        console.log(e);
+      }
+    }
+    setTimeout(function(){
+      loadMusicToPlay('/home/binayak/Music/' + audiofiles[0]);
+      context.decodeAudioData(track, function(buffer){
+        musicForTheEars = buffer;
+      });
+
+      var source = context.createBufferSource();
+      source.buffer = musicForTheEars;
+      source.connect =(context.destination);
+      source.start(0);
+    }, 200);
+
 </script>
 </html>
