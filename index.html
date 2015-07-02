@@ -1,92 +1,80 @@
 <!DOCTYPE html>
 <html>
-  <head>
-  	<script type="text/javascript">
-		var remote = require('remote');
-      	console.log(remote.require('app').getVersion());
-  	</script>
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    We are using io.js <script>document.write(process.version)</script>
-    and Electron <script>document.write(process.versions['electron'])</script>.
-    <br/>
-    And myapp version is <script>document.write(remote.require('app').getVersion())</script>
+    <head>
+        <title>MSync</title>
+    </head>
+    <body>
+        <h1>Let the Music begin..</h1>        
+    </body>
+    <script>
+        // Imports.
+        var remote = require('remote');
+        var fs = remote.require('fs');
+        var events = remote.require('events');
+        var readChunk = remote.require('read-chunk');
+        var fileType = remote.require('file-type');
 
-  </body>
-  <script>
-		// Imports.
-		var fs = remote.require('fs');
-    var events = remote.require('events');
-    var readChunk = remote.require('read-chunk');
-    var fileType = remote.require('file-type');
+        // Get file list
+        var files = fs.readdirSync('/home/binayak/Music');
+        var audiofiles = new Array();
+        var nfiles = files.length;
+        for (var i = 0; i < nfiles; i++){
+            var chunk = readChunk.sync('/home/binayak/Music/' + files[i], 0, 262);
+            if(fileType(chunk).mime == 'audio/mpeg'){
+                audiofiles.push(files[i]);
+            };
+        };
 
-    // @util-function: used to convert Buffer returned by fs to arrayBuffer required for WebAudio API
-    function toArrayBuffer(buffer) {
-        var ab = new ArrayBuffer(buffer.length);
-        var view = new Uint8Array(ab);
-        for (var i = 0; i < buffer.length; ++i) {
-            view[i] = buffer[i];
+        // Play audio files
+        var musicForTheEars= null;
+        var context, track;
+        function loadMusicToPlay(path){
+            console.log('getting resource: ' + path);
+            // create the audio context
+            try{
+                window.AudioContext = window.AudioContext || window.webkitAudioContext;
+                context = new AudioContext();
+            }
+            catch(e){
+                console.log('Audio API is broken :\'(');
+            }
+
+            // get the file
+            request = new XMLHttpRequest();
+            request.open('GET', 'file://' + path, true);
+            request.responseType = 'arraybuffer';
+
+            request.onload = function(){
+                var audioData = request.response;
+                context.decodeAudioData(audioData,
+                                        function(buffer){
+                                            musicForTheEars = buffer;
+                                        },
+                                        function(e){
+                                            console.log("Error with decoding audio data" + e.err);
+                                        });
+            }
+
+            request.send();
         }
-        return ab;
-    }
 
+        function letsHitIt(){
+            if (musicForTheEars != null) {
+                var source = context.createBufferSource();
+                source.buffer = musicForTheEars;
+                source.connect(context.destination);
+                source.loop = true;
+                source.start(0);
+                console.log("yo yo.. boom shaka");
+            }
+            else{
+                console.log("hit it again..");
+                setTimeout(letsHitIt, 500);          
+            }
+        }
 
-    // Get file list
-    var files = fs.readdirSync('/home/binayak/Music');
-    var audiofiles = new Array();
-    var nfiles = files.length;
-    for (var i = 0; i < nfiles; i++){
-      var chunk = readChunk.sync('/home/binayak/Music/' + files[i], 0, 262);
-      if(fileType(chunk).mime == 'audio/mpeg'){
-        audiofiles.push(files[i]);
-      };
-    };
+        loadMusicToPlay('/home/binayak/Music/' + audiofiles[0]);
+        letsHitIt();
 
-    // Play audio files
-    var musicForTheEars= null;
-    var context;
-    function loadMusicToPlay(path){
-      var track;
-      try{
-        window.AudioContext = window.AudioContext || window.webkitAudioContext;
-        context = new AudioContext();
-      }
-      catch(e){
-        console.log('Audio API is broken :\'(');
-      }
-      try{
-        track = fs.readFileSync(path);
-        track = toArrayBuffer(track);
-      }
-      catch(e){
-        console.log('Could not read file: ' + path);
-        console.log(e);
-      }
-      context.decodeAudioData(track, function(buffer){
-        musicForTheEars = buffer;
-        console.log('inside: ' + musicForTheEars);
-      });
-    };
-
-
-    function letsHitIt(){
-      if (musicForTheEars != null) {
-        var source = context.createBufferSource();
-        source.buffer = musicForTheEars;
-        source.connect =(context.destination);
-        source.start(0);
-        console.log("yo yo.. boom shaka");
-      }
-      else{
-        console.log("hit it again..");
-        setTimeout(letsHitIt, 500);          
-      }
-    }
-    
-    loadMusicToPlay('/home/binayak/Music/' + audiofiles[0]);
-    letsHitIt();
-
-  </script>
+    </script>
 </html>
