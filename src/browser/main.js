@@ -1,9 +1,10 @@
-// Imports.
 var remote = require('remote');
 var fs = remote.require('fs');
 var events = remote.require('events');
 var readChunk = remote.require('read-chunk');
 var fileType = remote.require('file-type');
+var bb = require('backbone');
+var _ = require('underscore');
 
 // @util-function: used to convert Buffer returned by fs to arrayBuffer required for WebAudio API
 function toArrayBuffer(buffer) {
@@ -15,18 +16,24 @@ function toArrayBuffer(buffer) {
     return ab;
 }
 
-// Get file list
-var files = fs.readdirSync('/home/binayak/Music');
-var audiofiles = new Array();
-var nfiles = files.length;
-for (var i = 0; i < nfiles; i++){
-    var chunk = readChunk.sync('/home/binayak/Music/' + files[i], 0, 262);
-    if(fileType(chunk).mime == 'audio/mpeg'){
-        audiofiles.push(files[i]);
+// Get list of audio files
+function getAudioList(path){
+    var files = fs.readdirSync(path);
+    var audiofiles = new Array();
+    var nfiles = files.length;
+    var chunk, type;
+    for (var i = 0; i < nfiles; i++){
+        chunk = readChunk.sync('' + path + files[i], 0, 262);
+        type = fileType(chunk).mime;
+        if(type == 'audio/mpeg' || type == 'audio/ogg' || type == 'audio/vorbis' || type == 'audio/webm'){
+            audiofiles.push(files[i]);
+        };
     };
-};
+    return audiofiles;
+}
 
 // Play audio files
+var audiofiles = getAudioList('/home/binayak/Music/');
 var musicForTheEars= null;
 var context;
 function loadMusicToPlay(path){
