@@ -9,7 +9,7 @@
   "engines": {
     "node": ">=0.12"
   },
-  "main": "./main",
+  "main": "./src/launch.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ghoshbinayak/msync.git"
@@ -24,9 +24,11 @@
     "googleapis": "~2.0.5"
   },
   "devDependencies": {
+    "backbone": "^1.2.1",
     "electron-prebuilt": "^0.28.3",
     "electron-rebuild": "^0.2.2",
     "file-type": "^2.7.0",
-    "read-chunk": "^1.0.1"
+    "read-chunk": "^1.0.1",
+    "underscore": "^1.8.3"
   }
 }
