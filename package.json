@@ -28,6 +28,10 @@
     "electron-prebuilt": "^0.28.3",
     "electron-rebuild": "^0.2.2",
     "file-type": "^2.7.0",
+    "grunt": "^0.4.5",
+    "handlebars": "^3.0.3",
+    "jquery": "^2.1.4",
+    "jsdoc": "^3.3.2",
     "read-chunk": "^1.0.1",
     "underscore": "^1.8.3"
   }

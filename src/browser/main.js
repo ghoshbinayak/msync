@@ -5,6 +5,11 @@ var readChunk = remote.require('read-chunk');
 var fileType = remote.require('file-type');
 var bb = require('backbone');
 var _ = require('underscore');
+var $ = require('jquery');
+var hbars = require('handlebars');
+var AppView = require('../src/browser/views/listview');
+
+var appView = new AppView();
 
 // @util-function: used to convert Buffer returned by fs to arrayBuffer required for WebAudio API
 function toArrayBuffer(buffer) {
@@ -14,6 +19,17 @@ function toArrayBuffer(buffer) {
         view[i] = buffer[i];
     }
     return ab;
+}
+
+// Get template
+try {
+  var template = fs.readFileSync("./static/templates/song-list.html", "utf-8");
+  template = hbars.compile(template);
+  console.log(template({songs: [{name: 'Balika', artist: 'Somlata'}, {name: 'Bakyabageesh', artist: 'Anupam Roy'}]}));
+}
+catch(e){
+  console.log('failed to load template');
+  console.log(e);
 }
 
 // Get list of audio files
@@ -34,10 +50,9 @@ function getAudioList(path){
 
 // Play audio files
 var audiofiles = getAudioList('/home/binayak/Music/');
-var musicForTheEars= null;
 var context;
-function loadMusicToPlay(path){
-    var track;
+function loadAudio(path, callback){
+    var musicForTheEars, track;
     try{
         window.AudioContext = window.AudioContext || window.webkitAudioContext;
         context = new AudioContext();
@@ -55,22 +70,21 @@ function loadMusicToPlay(path){
     }
     context.decodeAudioData(track, function(buffer){
         musicForTheEars = buffer;
+        callback(buffer);
     });
 };
 
-function letsHitIt(){
-    if (musicForTheEars != null) {
+function playAudio(buffer){
+    if (buffer != null) {
         var source = context.createBufferSource();
-        source.buffer = musicForTheEars;
+        source.buffer = buffer;
         source.connect(context.destination);
         source.start(0);
-        console.log("yo yo.. boom shaka");
+        console.log("playAudio: started playing..")
     }
     else{
-        console.log("hit it again..");
-        setTimeout(letsHitIt, 500);          
+        console.log("playAudio: somethings wrong with the audio buffer");          
     }
 }
 
-loadMusicToPlay('/home/binayak/Music/' + audiofiles[0]);
-letsHitIt();
+loadAudio('/home/binayak/Music/' + audiofiles[0], playAudio);
