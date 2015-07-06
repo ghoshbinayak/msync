@@ -10,6 +10,7 @@ var hbars = require('handlebars');
 var AppView = require('../src/browser/views/listview');
 
 var appView = new AppView();
+// console.log(AppView);
 
 // @util-function: used to convert Buffer returned by fs to arrayBuffer required for WebAudio API
 function toArrayBuffer(buffer) {

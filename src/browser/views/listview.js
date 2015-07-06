@@ -11,4 +11,6 @@ var AppView = bb.View.extend({
     render: function(){
     this.$el.html("Hello World");
     }
-});
+});    
+
+module.exports = AppView;
